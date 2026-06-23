@@ -2,6 +2,8 @@ import { useRef, useState } from 'react'
 import VideoPlayer from './components/VideoPlayer'
 import CanvasOverlay from './components/CanvasOverlay'
 import features from './config/features.json'
+import Login from './components/Login';
+import { AuthProvider } from './context/AuthContext';
 
 const ICONS = {
   select: <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />,
@@ -151,6 +153,7 @@ export default function App() {
   const analysisTimestamps = Array.from(new Set(shapes.map(s => Math.floor(s.timestamp))))
 
   return (
+    <AuthProvider>
     <div className="min-h-screen w-full flex flex-col bg-slate-900 text-slate-100 antialiased">
       <header className="w-full border-b border-slate-800 bg-slate-950 px-6 py-4 shadow-md">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
@@ -301,5 +304,6 @@ export default function App() {
         </section>
       </main>
     </div>
+    </AuthProvider>
   )
 }
