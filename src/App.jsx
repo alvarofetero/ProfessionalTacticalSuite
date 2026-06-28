@@ -30,17 +30,28 @@ export default function App() {
   const [fillPattern, setFillPattern] = useState('none') // none (solid color), grid, stripes
 
   const isCurrentlyFrozenRef = useRef(false)
+  const lastFrozenTimeRef = useRef(-1)
   const playerRef = useRef(null)
   const mediaRecorderRef = useRef(null)
   const recordedChunksRef = useRef([])
 
   const handleTimeUpdate = (time) => {
     setCurrentTime(time)
-    const hasShapeInThisFrame = shapes.some(s => Math.abs(s.timestamp - time) < 0.12)
-    if (hasShapeInThisFrame && !isCurrentlyFrozenRef.current) {
+    
+    // 1. Ampliamos el margen a 0.3s para garantizar que el timeupdate jamás se salte el dibujo
+    const shapeInFrame = shapes.find(s => Math.abs(s.timestamp - time) < 0.3)
+
+    if (shapeInFrame && !isCurrentlyFrozenRef.current) {
+      
+      // 2. Verificamos que no hayamos pausado ya en este mismo dibujo (evita el bucle infinito)
+      if (Math.abs(shapeInFrame.timestamp - lastFrozenTimeRef.current) < 1) return;
+
       const videoElement = document.querySelector('video')
       if (videoElement && !videoElement.paused) {
+        
         isCurrentlyFrozenRef.current = true
+        lastFrozenTimeRef.current = shapeInFrame.timestamp // Guardamos en memoria que ya procesamos esta jugada
+        
         videoElement.pause()
         setIsPlaying(false)
 
@@ -50,7 +61,7 @@ export default function App() {
             videoElement.play().catch(() => {})
             setIsPlaying(true)
           }
-        }, milliseconds_to_wait)
+        }, milliseconds_to_wait) // Los 8 segundos
       }
     }
   }
