@@ -11,7 +11,7 @@ describe('Sidebar Component',
         })
 
         it('should call setActiveTool when a tool button is clicked', () => {
-            const mockSetActiveTool = vi.fn(); // Creamos una función espía
+            const mockSetActiveTool = vi.fn(); // create a spy function to check if it is called inside de component.
             render(<Sidebar activeTool="select" setActiveTool={mockSetActiveTool} />);
     
              const arrowButton = screen.getByText('Arrow');
