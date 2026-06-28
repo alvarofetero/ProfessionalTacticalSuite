@@ -44,16 +44,26 @@ Element.prototype.getBoundingClientRect = vi.fn(() => ({
 vi.stubGlobal('requestAnimationFrame', vi.fn());
 vi.stubGlobal('cancelAnimationFrame', vi.fn());
 
-// 4. Mock adicional por si tu componente usa el objeto global de Video
-// Opcional: si usas 'document.querySelector('video')', esto evita errores
+// Guardamos la función original de JSDOM
+const nativeQuerySelector = document.querySelector.bind(document);
+
 document.querySelector = vi.fn().mockImplementation((selector) => {
+  // Solo devolvemos un elemento mockeado si el elemento real no existe en JSDOM
+  const element = nativeQuerySelector(selector);
+  if (element) return element;
+
+  
   if (selector === 'video') {
     return {
       readyState: 4,
       paused: false,
-      play: vi.fn(),
-      pause: vi.fn()
+      play: vi.fn().mockImplementation(() => Promise.resolve()),
+      pause: vi.fn(),
+      currentTime: 0,
+      duration: 100
     };
   }
+
   return null;
+
 });
