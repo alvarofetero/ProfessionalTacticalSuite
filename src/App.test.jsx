@@ -1,32 +1,53 @@
-import { render, screen } from '@testing-library/react'
-import '@testing-library/jest-dom'
+import { render, screen, fireEvent } from '@testing-library/react'
+import {describe, it, expect, beforeEach} from 'vitest'
 import App from './App'
 
-describe('App layout', () => {
-  it('renders the top bar with the app title', () => {
-    render(<App />)
-    expect(screen.getByText(/Football Video Analysis/i)).toBeInTheDocument()
-  })
 
-  it('renders the main video workspace', () => {
-    render(<App />)
-    expect(screen.getByRole('region', { name: /video workspace/i })).toBeInTheDocument()
-  })
-
-  it('renders the drawing toolbar buttons', () => {
-    render(<App />)
-    expect(screen.getByRole('button', { name: /select/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /rectangle/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /circle/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /arrow/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /cylinder/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /text/i })).toBeInTheDocument()
-  })
-
-  it('renders the playback controls at the bottom', () => {
-    render(<App />)
-    expect(screen.getByRole('button', { name: /skip back/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /skip forward/i })).toBeInTheDocument()
-    expect(screen.getByRole('slider', { name: /seek time/i })).toBeInTheDocument()
-  })
+// Mock global de MediaRecorder para la lógica de grabación de App.jsx
+beforeEach(() => {
+  vi.stubGlobal('MediaRecorder', vi.fn().mockImplementation(() => ({
+    start: vi.fn(),
+    stop: vi.fn(),
+    ondataavailable: vi.fn(),
+    onstop: vi.fn()
+  })))
+  
+  // Simulamos que el elemento canvas capturado tiene stream
+  HTMLCanvasElement.prototype.captureStream = vi.fn(() => ({}))
 })
+
+
+describe('App Integration', ()=> {
+
+  it('should change the active tool when a button is clicked on the Sidebar', () => {
+      render(<App />);
+      
+      // 1. Search for a tool button on the Sidebar
+      const arrowButton = screen.getByText('Arrow');
+      
+      // 2. Simulate a click
+      fireEvent.click(arrowButton);
+      
+      // 3. Verify  that the change is reflcted (ex.: button styl changed)
+      // Now the button has the class "active"
+      expect(arrowButton.className).toContain('bg-sky-500');
+    });
+
+  it('should activate the Recording status when the Record button in the header is clicked', () => {
+    render(<App />)
+    
+    // 1. Localizamos el botón del Header recién extraído
+    const recordButton = screen.getByTestId('ToggleRecordButton')
+    
+    // 2. Simulamos la acción del usuario
+    fireEvent.click(recordButton);
+    
+    // 3. Verificamos la integración: el botón debe mutar al estado activo (red/pulse)
+    expect(screen.getByText('Stop & Export HD')).toBeInTheDocument()
+  })
+
+
+});
+ 
+
+

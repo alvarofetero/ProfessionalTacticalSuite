@@ -28,6 +28,7 @@ function VideoPlayer({ onTimeUpdate, onDurationChange, onPlayStateChange }, ref)
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-none">
       <video
+        data-testid="main-video-element"
         ref={videoRef}
         width="100%"
         height="100%"
@@ -39,7 +40,7 @@ function VideoPlayer({ onTimeUpdate, onDurationChange, onPlayStateChange }, ref)
         onTimeUpdate={() => onTimeUpdate?.(videoRef.current?.currentTime || 0)}
         onDurationChange={() => onDurationChange?.(videoRef.current?.duration || 0)}
       />
-      <input ref={inputRef} type="file" accept="video/*" className="sr-only" onChange={handleFileChange} />
+      <input ref={inputRef} type="file" accept="video/*" style={{ display: 'none'}} onChange={handleFileChange} />
       
       {!videoLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-950/90 text-slate-400 text-sm font-medium">
