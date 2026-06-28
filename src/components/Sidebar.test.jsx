@@ -18,6 +18,16 @@ describe('Sidebar Component',
             fireEvent.click(arrowButton);
     
         expect(mockSetActiveTool).toHaveBeenCalledWith('arrow');
-  })
+        })
+
+        it('should render the drawing toolbar buttons', () => {
+            render(<Sidebar />)
+        expect(screen.getByRole('button', { name: /select/i })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /area/i })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /circle/i })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /arrow/i })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /cylinder/i })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /text/i })).toBeInTheDocument()
+        })
     }
  )
