@@ -28,6 +28,7 @@ function VideoPlayer({ onTimeUpdate, onDurationChange, onPlayStateChange }, ref)
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-none">
       <video
+        data-testid="main-video-element"
         ref={videoRef}
         width="100%"
         height="100%"
