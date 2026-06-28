@@ -1,6 +1,14 @@
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 
+
+// Mockear los métodos multimedia en el prototipo global de HTMLMediaElement
+// Esto intercepta CUALQUIER elemento <video> o <audio> en JSDOM, evitando el "Not implemented"
+HTMLMediaElement.prototype.play = vi.fn().mockImplementation(() => Promise.resolve());
+HTMLMediaElement.prototype.pause = vi.fn();
+HTMLMediaElement.prototype.load = vi.fn();
+
+
 // 1. Mock completo del Contexto de Canvas
 // Esto soluciona errores como 'quadraticCurveTo is not a function'
 HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
