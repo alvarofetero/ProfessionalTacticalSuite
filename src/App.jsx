@@ -4,6 +4,7 @@ import CanvasOverlay from './components/CanvasOverlay'
 import features from './config/features.json'
 import Sidebar from './components/Sidebar';
 import VideoControls from './components/VideoControls';
+import Header from './components/Header';
 
 
 
@@ -121,7 +122,10 @@ export default function App() {
       mediaRecorderRef.current = recorder
       recorder.start()
       setIsRecording(true)
-      document.querySelector('video')?.play().catch(() => {})
+      const playPromise = document.querySelector('video')?.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {});
+      }
       setIsPlaying(true)
     }
   }
@@ -130,28 +134,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-slate-900 text-slate-100 antialiased">
-      <header className="w-full border-b border-slate-800 bg-slate-950 px-6 py-4 shadow-md">
-        <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-sky-400">Professional Tactical Suite v1.0</p>
-            <h1 className="text-2xl font-bold tracking-tight text-white">Video Drawing Studio HD</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              className={`rounded-xl px-5 py-2.5 text-sm font-bold shadow transition-all duration-200 ${
-                isRecording ? 'bg-red-600 hover:bg-red-500 animate-pulse ring-4 ring-red-950' : 'bg-emerald-600 hover:bg-emerald-500'
-              }`}
-              onClick={handleToggleRecord}
-            >
-              {isRecording ? 'Stop & Export HD' : 'Export Video (16:9 HD)'}
-            </button>
-            <button type="button" className="rounded-xl bg-sky-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg hover:bg-sky-400 transition-colors" onClick={handleLoadVideo}>
-              Load Match Video
-            </button>
-          </div>
-        </div>
-      </header>
+    
+      <Header isRecording = {isRecording} handleToggleRecord={handleToggleRecord} handleLoadVideo={handleLoadVideo} />
 
       <main className="flex-1 w-full mx-auto max-w-[1600px] grid gap-5 p-5 lg:grid-cols-[320px_1fr]">
           <Sidebar 
