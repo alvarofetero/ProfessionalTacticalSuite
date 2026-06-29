@@ -39,5 +39,16 @@ describe('VideoControls Component', ()=>
         expect(screen.getByRole('button', { name: /play/i })).toBeInTheDocument()
         expect(screen.getByRole('slider')).toBeInTheDocument()
         });
+
+        it('renders a custom triangle progress indicator', () => {
+            render(<VideoControls {...defaultProps} />);
+            expect(screen.getByTestId('timeline-progress-indicator')).toBeInTheDocument();
+        });
+
+        it('renders timeline markers for key time intervals', () => {
+            render(<VideoControls {...defaultProps} duration={600} />);
+            expect(screen.getByText('0m')).toBeInTheDocument();
+            expect(screen.getByText('5m')).toBeInTheDocument();
+        });
     }
 )
