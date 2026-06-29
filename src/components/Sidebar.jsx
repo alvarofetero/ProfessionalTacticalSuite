@@ -35,7 +35,7 @@
         })
     {
     return(
-    <aside className="rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl space-y-5 h-fit overflow-y-auto max-h-[85vh]">
+    <aside className="rounded-2xl border border-slate-800 bg-slate-950 p-4 shadow-xl space-y-4 h-fit overflow-y-auto max-h-[85vh] lg:p-3">
       
           {/* Tools section */}
           <div className="space-y-2">

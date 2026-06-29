@@ -137,7 +137,7 @@ export default function App() {
     
       <Header isRecording = {isRecording} handleToggleRecord={handleToggleRecord} handleLoadVideo={handleLoadVideo} />
 
-      <main className="flex-1 w-full mx-auto max-w-[1600px] grid gap-5 p-5 lg:grid-cols-[320px_1fr]">
+      <main className="flex-1 w-full grid gap-4 p-2 sm:p-3 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-5 lg:p-4">
           <Sidebar 
         activeTool={activeTool} 
         setActiveTool={setActiveTool}
@@ -154,9 +154,9 @@ export default function App() {
       />
 
         <section className="flex flex-col gap-1 h-full w-full min-w-0">
-          <div className="w-full rounded-2xl border border-slate-800 bg-slate-950 p-4 shadow-xl flex items-center justify-center">
+          <div className="w-full rounded-2xl border border-slate-800 bg-slate-950 p-1.5 shadow-xl flex items-center justify-center sm:p-2 lg:p-3">
             {/* CORRECCIÓN: Forzamos el contenedor visual a mantener un estricto ratio 16:9 panorámico estándar */}
-            <div className="relative w-full aspect-video max-h-[75vh] overflow-hidden rounded-xl bg-black border border-slate-900">
+            <div className="relative w-full aspect-video max-h-[84vh] overflow-hidden rounded-xl bg-black border border-slate-900">
               <VideoPlayer ref={playerRef} width={videoSize.width} height={videoSize.height} onTimeUpdate={handleTimeUpdate} onDurationChange={setDuration} onPlayStateChange={setIsPlaying} />
               <CanvasOverlay
                 videoWidth={videoSize.width}
