@@ -3,6 +3,7 @@ import VideoPlayer from './components/VideoPlayer'
 import CanvasOverlay from './components/CanvasOverlay'
 import features from './config/features.json'
 import Sidebar from './components/Sidebar';
+import TagControls from './components/TagControls';
 import VideoControls from './components/VideoControls';
 import Header from './components/Header';
 
@@ -131,13 +132,14 @@ export default function App() {
   }
 
   const analysisTimestamps = Array.from(new Set(shapes.map(s => Math.floor(s.timestamp))))
+  const [tags, setTags] = useState([])
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-slate-900 text-slate-100 antialiased">
     
       <Header isRecording = {isRecording} handleToggleRecord={handleToggleRecord} handleLoadVideo={handleLoadVideo} />
 
-      <main className="flex-1 w-full grid gap-4 p-2 sm:p-3 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-5 lg:p-4">
+      <main className="flex-1 w-full grid gap-2 p-1.5 sm:p-2 lg:grid-cols-[280px_minmax(0,1fr)_220px] lg:gap-3 lg:p-3">
           <Sidebar 
         activeTool={activeTool} 
         setActiveTool={setActiveTool}
@@ -154,9 +156,9 @@ export default function App() {
       />
 
         <section className="flex flex-col gap-1 h-full w-full min-w-0">
-          <div className="w-full rounded-2xl border border-slate-800 bg-slate-950 p-1.5 shadow-xl flex items-center justify-center sm:p-2 lg:p-3">
+          <div className="w-full rounded-2xl border border-slate-800 bg-slate-950 p-1 shadow-xl flex items-center justify-center sm:p-1.5 lg:p-2">
             {/* CORRECCIÓN: Forzamos el contenedor visual a mantener un estricto ratio 16:9 panorámico estándar */}
-            <div className="relative w-full aspect-video max-h-[84vh] overflow-hidden rounded-xl bg-black border border-slate-900">
+            <div className="relative w-full aspect-video max-h-[72vh] sm:max-h-[70vh] lg:max-h-[68vh] overflow-hidden rounded-xl bg-black border border-slate-900">
               <VideoPlayer ref={playerRef} width={videoSize.width} height={videoSize.height} onTimeUpdate={handleTimeUpdate} onDurationChange={setDuration} onPlayStateChange={setIsPlaying} />
               <CanvasOverlay
                 videoWidth={videoSize.width}
@@ -174,17 +176,22 @@ export default function App() {
             </div>
           </div>
 
-         <VideoControls 
+        <VideoControls 
             duration={duration}
             currentTime={currentTime}
             isPlaying={isPlaying}
             analysisTimestamps={analysisTimestamps}
+          tags={tags}
             togglePlayPause={togglePlayPause}
             skipTime={skipTime}
             handleSeekChange={handleSeekChange}
             formatTime={formatTime}
          />
         </section>
+
+        <aside className="rounded-2xl border border-slate-800 bg-slate-950 p-3 shadow-xl h-fit hidden lg:block">
+          <TagControls currentTime={currentTime} tags={tags} setTags={setTags} formatTime={formatTime} />
+        </aside>
       </main>
     </div>
   )
