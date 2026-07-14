@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import JSZip from 'jszip'
 import VideoPlayer from './components/VideoPlayer'
 import CanvasOverlay from './components/CanvasOverlay'
 import features from './config/features.json'
@@ -134,6 +135,104 @@ export default function App() {
   const analysisTimestamps = Array.from(new Set(shapes.map(s => Math.floor(s.timestamp))))
   const [tags, setTags] = useState([])
 
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms))
+
+  const createCutAt = async (time, label, options = {}) => {
+    const { download = true } = options
+    const videoElement = document.querySelector('video')
+    const canvas = document.querySelector('canvas')
+    if (!videoElement) {
+      alert('No video loaded')
+      return null
+    }
+    if (!canvas) {
+      alert('No canvas available to capture')
+      return null
+    }
+    if (!duration || duration <= 0) {
+      alert('Video duration unknown')
+      return null
+    }
+
+    const start = Math.max(0, time - 4)
+    const end = Math.min(duration, time + 4)
+    const wasPlaying = !videoElement.paused
+
+    await new Promise((resolve) => {
+      const onSeeked = () => {
+        videoElement.removeEventListener('seeked', onSeeked)
+        resolve()
+      }
+      videoElement.addEventListener('seeked', onSeeked)
+      try { videoElement.currentTime = start } catch { resolve() }
+    })
+
+    try { await videoElement.play() } catch (e) {}
+
+    const stream = canvas.captureStream(30)
+    let recorder
+    try {
+      recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' })
+    } catch (e) {
+      try {
+        recorder = new MediaRecorder(stream)
+      } catch (err) {
+        alert('Recording not supported in this browser')
+        return null
+      }
+    }
+
+    const recorded = []
+    recorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) recorded.push(ev.data) }
+
+    const stopPromise = new Promise((resolve) => {
+      recorder.onstop = () => resolve()
+    })
+
+    recorder.start()
+    const ms = Math.round((end - start) * 1000)
+    await sleep(ms + 300)
+    recorder.stop()
+    await stopPromise
+
+    const blob = new Blob(recorded, { type: 'video/webm' })
+
+    if (download) {
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${(label || 'cut').replace(/[^a-z0-9-_]+/gi, '_')}_${Math.round(start)}.webm`
+      a.click()
+      URL.revokeObjectURL(url)
+    }
+
+    if (!wasPlaying) videoElement.pause()
+    return blob
+  }
+
+  const createCutsZip = async (cuts, zipName = 'video-cuts.zip') => {
+    const zip = new JSZip()
+    const blobs = []
+
+    for (const cut of cuts) {
+      const blob = await createCutAt(cut.time, cut.label, { download: false })
+      if (blob) blobs.push({ blob, label: cut.label, time: cut.time })
+    }
+
+    blobs.forEach((item, index) => {
+      const safeName = `${(item.label || 'cut').replace(/[^a-z0-9-_]+/gi, '_')}_${Math.round(item.time)}_${index + 1}.webm`
+      zip.file(safeName, item.blob)
+    })
+
+    const content = await zip.generateAsync({ type: 'blob' })
+    const url = URL.createObjectURL(content)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = zipName
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="min-h-screen w-full flex flex-col bg-slate-900 text-slate-100 antialiased">
     
@@ -189,9 +288,9 @@ export default function App() {
          />
         </section>
 
-        <aside className="rounded-2xl border border-slate-800 bg-slate-950 p-3 shadow-xl h-fit hidden lg:block">
-          <TagControls currentTime={currentTime} tags={tags} setTags={setTags} formatTime={formatTime} />
-        </aside>
+        {/* <aside className="rounded-2xl border border-slate-800 bg-slate-950 p-3 shadow-xl h-fit hidden lg:block">
+          <TagControls currentTime={currentTime} tags={tags} setTags={setTags} formatTime={formatTime} createCutAt={createCutAt} createCutsZip={createCutsZip} shapes={shapes} />
+        </aside> */}
       </main>
     </div>
   )
